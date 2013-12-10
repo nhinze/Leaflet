@@ -86,6 +86,10 @@ L.extend(L.GeoJSON, {
 			latlng = coordsToLatLng(coords);
 			return pointToLayer ? pointToLayer(geojson, latlng) : new L.Marker(latlng);
 
+		case 'Circle':
+			latlng = coordsToLatLng(coords);
+			return new L.Circle(latlng, geometry.radius);
+
 		case 'MultiPoint':
 			for (i = 0, len = coords.length; i < len; i++) {
 				latlng = coordsToLatLng(coords[i]);
@@ -188,7 +192,17 @@ var PointToGeoJSON = {
 };
 
 L.Marker.include(PointToGeoJSON);
-L.Circle.include(PointToGeoJSON);
+
+L.Circle.include({
+	toGeoJSON: function () {
+		return L.GeoJSON.getFeature(this, {
+			type: 'Circle',
+			coordinates: L.GeoJSON.latLngToCoords(this.getLatLng()),
+			radius: this.getRadius()
+		});
+	}
+});
+
 L.CircleMarker.include(PointToGeoJSON);
 
 L.Polyline.include({
